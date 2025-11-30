@@ -219,9 +219,6 @@ start_tproxy() {
   
   ${iptables} -t mangle -A BOX_LOCAL -m owner --uid-owner ${box_user} --gid-owner ${box_group} -j RETURN
   
-  ${iptables} -t mangle -I BOX_LOCAL 1 -j CONNMARK --restore-mark
-  ${iptables} -t mangle -I BOX_LOCAL 2 -m mark --mark ${mark_id} -j ACCEPT
-  
   if [ "${ignore_out_list}" != "" ] ; then
     for ignore in ${ignore_out_list[@]} ; do
       ${iptables} -t mangle -A BOX_LOCAL -o ${ignore} -j RETURN
@@ -309,6 +306,9 @@ start_tproxy() {
     ${iptables} -t mangle -A BOX_LOCAL -p tcp -j MARK --set-xmark ${mark_id}
     ${iptables} -t mangle -A BOX_LOCAL -p udp -j MARK --set-xmark ${mark_id}
   fi
+  
+  ${iptables} -t mangle -I BOX_LOCAL 1 -j CONNMARK --restore-mark
+  ${iptables} -t mangle -I BOX_LOCAL 2 -m mark --mark ${mark_id} -j ACCEPT
   
   ${iptables} -t mangle -A BOX_LOCAL -j CONNMARK --save-mark
   
