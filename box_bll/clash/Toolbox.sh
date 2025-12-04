@@ -185,10 +185,9 @@ download_all_rules() {
     done
 }
 
-CURRENT_VERSION="v13.5.7"
+CURRENT_VERSION="v13.5.8"
 UPDATE_LOG="更新日志: 
-优化已知问题
-临时禁用核心更新..."
+新增模块服务调式日志输出.zip"
 
 TOOLBOX_URL="https://raw.githubusercontent.com/GitMetaio/Surfing/main/box_bll/clash/Toolbox.sh"
 TOOLBOX_FILE="/data/adb/box_bll/clash/Toolbox.sh"
@@ -610,7 +609,9 @@ show_menu() {
     echo
     printc magenta "14. 一键卸载"
     echo
-    printc magenta "15. Exit"
+    printc magenta "15. Debug"
+    echo
+    printc magenta "16. Exit"
     echo
     printc -n blue "正在等待输出: "
     read -r choice
@@ -668,10 +669,90 @@ show_menu() {
       12) open_project_page ;;
       13) mount_hosts ;;
       14) delete_files_and_dirs ;;
-      15) exit 0 ;;
+      15) service_check ;;
+      16) exit 0 ;;
       *) printc red "无效的输入！" ;;
     esac
   done
+}
+service_check() {
+    DEBUG_DIR="/data/adb/box_bll/clash/Debug"
+    BASE_DIR="/data/adb/box_bll/clash"
+    mkdir -p "$DEBUG_DIR"
+    
+    LOG="$DEBUG_DIR/service_check.log"
+    ZIP_PATH="$BASE_DIR/Debug.zip"
+    : > "$LOG"
+    
+    if [ -d /data/adb/modules/box ]; then
+    echo "Module box Install" >> "$LOG"
+    cp -a /data/adb/modules/box "$DEBUG_DIR/box_module"
+    else
+    echo "Module box No" >> "$LOG"
+    fi
+    
+    if ps -ef >/dev/null 2>&1; then
+    ps -ef | grep notifyd | grep -v grep >> "$LOG" 2>&1
+    else
+    ps | grep notifyd | grep -v grep >> "$LOG" 2>&1
+    fi
+    
+    CFG="/data/adb/box_bll/clash/config.yaml"
+    CFG_OUT="$DEBUG_DIR/config.yaml"
+    
+    if [ -f "$CFG" ]; then
+    awk '
+      /proxy-providers:/ {flag=1}
+      /profile:/ {flag=0}
+      flag==0 {print}
+    ' "$CFG" > "$CFG_OUT"
+    else
+    echo "No config.yaml" >> "$LOG"
+    fi
+    
+    if command -v magisk >/dev/null 2>&1 || [ -d /data/adb/magisk ]; then
+    echo "Root: Magisk" >> "$LOG"
+    elif [ -d /data/adb/ksu ]; then
+    echo "Root: KernelSU" >> "$LOG"
+    elif [ -d /data/adb/ap ]; then
+    echo "Root: APatch" >> "$LOG"
+    else
+    echo "No Root " >> "$LOG"
+    fi
+    
+    BOX_CFG="/data/adb/box_bll/scripts/box.config"
+    if [ -f "$BOX_CFG" ]; then
+    cp -f "$BOX_CFG" "$DEBUG_DIR/"
+    else
+    echo "No box.config" >> "$LOG"
+    fi
+    
+    RUN_DIR="/data/adb/box_bll/run"
+    if [ -d "$RUN_DIR" ]; then
+    cp -a "$RUN_DIR" "$DEBUG_DIR/"
+    else
+    echo "No run" >> "$LOG"
+    fi
+    
+    MODULE_PROP="/data/adb/modules/Surfing/module.prop"
+    if [ -f "$MODULE_PROP" ]; then
+    VER=$(grep -m1 "^version=" "$MODULE_PROP" | cut -d= -f2)
+    echo "Surfing: $VER" >> "$LOG"
+    else
+    echo "No Surfing" >> "$LOG"
+    fi
+    
+    cd "$DEBUG_DIR" || exit 1
+    
+    [ -f "$ZIP_PATH" ] && rm -f "$ZIP_PATH"
+    
+    zip -r "$ZIP_PATH" ./* >/dev/null 2>&1
+    
+    cd "$BASE_DIR" || exit 1
+    
+    rm -rf "$DEBUG_DIR"
+    echo
+    printc blue "box_bll/clash/Debug.zip"
 }
 mount_hosts() {
     local target_dir="/data/adb/box_bll/clash/etc"
