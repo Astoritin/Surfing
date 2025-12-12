@@ -52,8 +52,7 @@ uninstall_package() {
             sleep 1
         done
     fi
-    pm uninstall "$package_name"
-
+    pm uninstall "$package_name" || pm uninstall --user 0 "$package_name"
 }
 
 while [ "$(getprop vold.decrypt)" = "1" ]; do
