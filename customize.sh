@@ -169,7 +169,7 @@ choose_to_install_surfingtile_module() {
   fi
 }
 
-choose_to_install_web_app() {
+choose_to_install_Web_apk() {
   ui_print "Install Web app ?"
   ui_print "Volume Up: No"
   ui_print "Volume Down: Yes (default)"
@@ -266,7 +266,7 @@ else
   ui_print "↴"
   mv "$MODPATH/box_bll" /data/adb/
   choose_to_install_surfingtile_module
-  choose_to_install_web_app
+  choose_to_install_Web_apk
   ui_print "Module installation completed. Working directory:"
   ui_print "data/adb/box_bll/"
   ui_print "Please add your subscription to"
