@@ -177,7 +177,6 @@ choose_to_install_web_app() {
   if choose_volume_key; then
     ui_print "Skip installing Web app..."
   else
-    ui_print "Installing Web app..."
     install_Web_apk
   fi
 }
