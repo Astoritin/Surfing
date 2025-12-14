@@ -91,9 +91,8 @@ restore_subscribe_urls() {
 install_Web_apk() {
   if [ -f "$APK_FILE" ]; then
     cp "$APK_FILE" "$INSTALL_DIR/"
-    pm install "$INSTALL_DIR/Web.apk"
     ui_print "Installing Web.apk..."
-    ui_print "installation complete"
+    pm install "$INSTALL_DIR/Web.apk"
     rm -rf "$INSTALL_DIR/Web.apk"
   else
     ui_print "Web.apk not found"
@@ -105,9 +104,8 @@ install_Surfingtile_apk() {
   APK_TMP="$INSTALL_DIR/com.surfing.tile.apk"
   if [ -f "$APK_SRC" ]; then
     cp "$APK_SRC" "$APK_TMP"
-    pm install "$APK_TMP"
     ui_print "Installing Surfingtile APK..."
-    ui_print "installation complete"
+    pm install "$APK_TMP"
     rm -f "$APK_TMP"
   else
     ui_print "Surfingtile APK not found"
@@ -210,7 +208,7 @@ if [ -d /data/adb/box_bll ]; then
   /data/adb/box_bll/scripts/box.service stop > /dev/null 2>&1
   sleep 1.5
   
-  install_surfingtile_module
+  [ -d "$SURFING_TILE_DIR_UPDATE" ] && install_surfingtile_module
   
   if [ "$INSTALL_TILE_APK" = true ]; then
     choose_to_install_surfingtile_module
