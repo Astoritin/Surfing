@@ -173,7 +173,7 @@ install_surfingtile_module() {
 
 choose_volume_key() {
     timeout_seconds=10
-
+    sleep 0.5
     print_loc "等待按键中 (${timeout_seconds}秒)" "Waiting for pressing key (${timeout_seconds}s)..."
 
     read -r -t $timeout_seconds line < <(getevent -ql | awk '/KEY_VOLUME/ {print; exit}')
@@ -292,9 +292,27 @@ if [ -d /data/adb/box_bll ]; then
   /data/adb/box_bll/scripts/box.service stop > /dev/null 2>&1
   sleep 1.5
   printe
-  if [ "$INSTALL_TILE_APK" = true ] || [ -d "$SURFING_TILE_DIR_UPDATE" ]; then
+
+  SURFING_TILE_MODULE_PROP_IN_ZIP="${SURFING_TILE_DIR}/module.prop"
+  SURFING_TILE_MODULE_PROP_INSTALLED="${SURFING_TILE_DIR_UPDATE}/module.prop"
+  
+  SURFING_TILE_VER_IN_ZIP=$(awk -F'=' '/versionCode/ {print $2}' "$SURFING_TILE_MODULE_PROP_IN_ZIP" 2>/dev/null | tr -d '[:space:]')
+  SURFING_TILE_VER_INSTALLED=$(awk -F'=' '/versionCode/ {print $2}' "$SURFING_TILE_MODULE_PROP_INSTALLED" 2>/dev/null | tr -d '[:space:]')
+
+  SURFING_TILE_VER_IN_ZIP=${SURFING_TILE_VER_IN_ZIP:-0}
+
+  if [ "$INSTALL_TILE_APK" = true ]; then
     install_surfingtile_module
+  elif [ "$SURFING_TILE_VER_IN_ZIP" -gt "$SURFING_TILE_VER_INSTALLED" ]; then
+    print_loc "检测到旧版本 SurfingTile 模块" "Detect old version of SurfingTile module"
+    print_loc "升级中" "Updating"
+    install_surfingtile_module
+  elif [ -f "$SURFING_TILE_MODULE_PROP_INSTALLED" ]; then
+    print_loc "已安装的 SurfingTile 模块版本" "Installed SurfingTile module version"
+    print_loc "高于/等于当前模块内置的版本" "is higher than/equals to current module inbuilt version"
+    print_loc "无需更新 SurfingTile 模块" "Updating SurfingTile module is not needed"
   else
+    print_loc "未检测到 SurfingTile 模块" "SurfingTile module is not found"
     choose_to_install_surfingtile_module
   fi
   if [ "$INSTALL_APK" = true ]; then
