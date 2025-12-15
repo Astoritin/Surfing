@@ -295,7 +295,7 @@ if [ -d /data/adb/box_bll ]; then
 
   SURFING_TILE_VER_ZIP=$(grep_prop versionCode "$SURFING_TILE_MODULE_PROP_ZIP")
   SURFING_TILE_VER_INSTALLED=$(grep_prop versionCode "$SURFING_TILE_MODULE_PROP_INSTALLED")
-  
+
   [ -z "$SURFING_TILE_VER_INSTALLED" ] && SURFING_TILE_VER_INSTALLED=0
 
   if [ "$INSTALL_TILE" = true ]; then
