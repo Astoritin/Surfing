@@ -5,6 +5,8 @@ ASH_STANDALONE=1
 
 LOCALE=$(getprop "persist.sys.locale")
 
+LOCALE=$(getprop "persist.sys.locale")
+
 SURFING_PATH="/data/adb/modules/Surfing"
 SCRIPTS_PATH="/data/adb/box_bll/scripts"
 NET_PATH="/data/misc/net"
