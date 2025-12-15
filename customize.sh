@@ -218,6 +218,7 @@ choose_to_install_surfingtile() {
 
   if choose_volume_key; then
     print_loc "已跳过安装 SurfingTile APP…" "Skip installing SurfingTile APP..."
+    printe
   else
     install_surfingtile
   fi
@@ -233,6 +234,7 @@ choose_to_install_web_apk() {
 
   if choose_volume_key; then
     print_loc "已跳过安装 Web APP…" "Skip installing Web APP..."
+    printe
   else
     install_Web_apk
   fi
