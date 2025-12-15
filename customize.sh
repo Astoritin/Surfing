@@ -139,6 +139,12 @@ install_surfingtile_module() {
       print_loc "请查阅 KernelSU 官方网站" "please check KernelSU official website."
       printe
   fi
+}
+
+install_surfingtile() {
+
+  install_Surfingtile_apk
+  install_surfingtile_module
 
 }
 
@@ -180,7 +186,7 @@ choose_to_umount_hosts_file() {
 
 }
 
-choose_to_install_surfingtile_module() {
+choose_to_install_surfingtile() {
   printl
   printe
   print_loc "是否安装 SurfingTile APP?" "Install SurfingTile APP?"
@@ -191,8 +197,7 @@ choose_to_install_surfingtile_module() {
   if choose_volume_key; then
     print_loc "已跳过安装 SurfingTile APP…" "Skip installing SurfingTile APP..."
   else
-    install_surfingtile_module
-    install_Surfingtile_apk
+    install_surfingtile
   fi
 }
 
@@ -279,14 +284,14 @@ if [ -d /data/adb/box_bll ]; then
   elif [ "$SURFING_TILE_VER_IN_ZIP" -gt "$SURFING_TILE_VER_INSTALLED" ]; then
     print_loc "检测到旧版本 SurfingTile 模块" "Detect old version of SurfingTile module"
     print_loc "升级中" "Updating"
-    install_surfingtile_module
+    install_surfingtile
   elif [ -f "$SURFING_TILE_MODULE_PROP_INSTALLED" ]; then
     print_loc "已安装的 SurfingTile 模块版本" "Installed SurfingTile module version"
     print_loc "高于/等于当前模块内置的版本" "is higher than/equals to current module inbuilt version"
     print_loc "无需更新 SurfingTile 模块" "Updating SurfingTile module is not needed"
   else
     print_loc "未检测到 SurfingTile 模块" "SurfingTile module is not found"
-    choose_to_install_surfingtile_module
+    choose_to_install_surfingtile
   fi
 
   extract_subscribe_urls
@@ -335,7 +340,7 @@ else
   print_loc "安装中…" "Installing..."
   ui_print " ↴"
   mv "$MODPATH/box_bll" /data/adb/
-  choose_to_install_surfingtile_module
+  choose_to_install_surfingtile
   choose_to_install_Web_apk
   choose_to_umount_hosts_file
   printl
