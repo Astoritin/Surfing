@@ -22,7 +22,29 @@ SURFING_TILE_DIR_UPDATE="/data/adb/modules/SurfingTile"
 SURFING_TILE_DIR="/data/adb/modules_update/SurfingTile"
 
 MODULE_PROP_PATH="/data/adb/modules/Surfing/module.prop"
-MODULE_VERSION_CODE=$(awk -F'=' '/versionCode/ {print $2}' "$MODULE_PROP_PATH")
+MODULE_VERSION_CODE=$(grep_prop versionCode "$MODULE_PROP_PATH")
+
+print_loc() {  # print locale content
+
+  if [ "$LOCALE" = "zh-CN" ]; then
+    ui_print " $1"
+  else
+    ui_print " $2"
+  fi
+
+}
+
+printl() {  # print line
+
+  length=28
+  symbol=*
+
+  line=$(printf "%-${length}s" | tr ' ' "$symbol")
+  ui_print "$line"
+
+}
+
+printe() { ui_print " "; }  # print empty line
 
 if [ "$MODULE_VERSION_CODE" -lt 1638 ]; then
   INSTALL_TILE=true
@@ -269,13 +291,11 @@ if [ -d /data/adb/box_bll ]; then
   sleep 1.5
   printe
 
-  SURFING_TILE_MODULE_PROP_IN_ZIP="${SURFING_TILE_DIR}/module.prop"
+  SURFING_TILE_MODULE_PROP_ZIP="${SURFING_TILE_DIR}/module.prop"
   SURFING_TILE_MODULE_PROP_INSTALLED="${SURFING_TILE_DIR_UPDATE}/module.prop"
-  
-  SURFING_TILE_VER_IN_ZIP=$(awk -F'=' '/versionCode/ {print $2}' "$SURFING_TILE_MODULE_PROP_IN_ZIP" 2>/dev/null | tr -d '[:space:]')
-  SURFING_TILE_VER_INSTALLED=$(awk -F'=' '/versionCode/ {print $2}' "$SURFING_TILE_MODULE_PROP_INSTALLED" 2>/dev/null | tr -d '[:space:]')
 
-  SURFING_TILE_VER_IN_ZIP=${SURFING_TILE_VER_IN_ZIP:-0}
+  SURFING_TILE_VER_ZIP=$(grep_prop versionCode "$SURFING_TILE_MODULE_PROP_ZIP")
+  SURFING_TILE_VER_INSTALLED=$(grep_prop versionCode "$SURFING_TILE_MODULE_PROP_INSTALLED") || SURFING_TILE_VER_INSTALLED=0
 
   if [ "$INSTALL_TILE" = true ]; then
     rm -rf /data/adb/modules/Surfingtile 2>/dev/null
@@ -285,13 +305,14 @@ if [ -d /data/adb/box_bll ]; then
     print_loc "检测到旧版本 SurfingTile 模块" "Detect old version of SurfingTile module"
     print_loc "升级中" "Updating"
     install_surfingtile
-  elif [ -f "$SURFING_TILE_MODULE_PROP_INSTALLED" ]; then
-    print_loc "已安装的 SurfingTile 模块版本" "Installed SurfingTile module version"
-    print_loc "高于/等于当前模块内置的版本" "is higher than/equals to current module inbuilt version"
-    print_loc "无需更新 SurfingTile 模块" "Updating SurfingTile module is not needed"
-  else
+  elif [ "$SURFING_TILE_VER_INSTALLED" -eq 0 ]; then
     print_loc "未检测到 SurfingTile 模块" "SurfingTile module is not found"
+    printe
     choose_to_install_surfingtile
+  else
+    print_loc "已安装的 SurfingTile 模块版本" "Installed SurfingTile module version"
+    print_loc "≥ 当前模块 zip 内置的版本" "is higher than/same as current module zip inbuilt version"
+    print_loc "无需更新 SurfingTile 模块" "Updating SurfingTile module is not needed"
   fi
 
   extract_subscribe_urls
