@@ -123,11 +123,11 @@ install_Web_apk() {
     else
       print_loc "安装失败" "Failed"
     fi
-    printe
     rm -rf "$INSTALL_DIR/Web.apk"
   else
-    print_loc "Web.apk 未找到" "Web.apk not found"
+    print_loc "未找到 Web.apk" "Web.apk not found"
   fi
+  printe
 }
 
 install_Surfingtile_apk() {
@@ -142,11 +142,11 @@ install_Surfingtile_apk() {
     else
       print_loc "安装失败" "Failed"
     fi
-    printe
     rm -f "$APK_TMP"
   else
-    print_loc "SurfingTile APK 未找到" "SurfingTile APK not found"
+    print_loc "未找到 SurfingTile APK" "SurfingTile APK not found"
   fi
+  printe
 }
 
 install_surfingtile_module() {
@@ -269,14 +269,14 @@ unzip -qo "${ZIPFILE}" -x 'META-INF/*' -d "$MODPATH"
 
 if [ -z "$LOCALE" ]; then
   printe
-  ui_print "  请选择你所使用的语言：
-  Please select your language:
-  
-- 音量增加键：简体中文
-  Volume Up: Simplified Chinese
-- 音量减少键：English
-  Volume Down: English (default)
-  "
+  ui_print " 请选择你所使用的语言：
+ Please select your language:
+ 
+ 音量增加键：简体中文
+ Volume Up: Simplified Chinese
+ 音量减少键：English
+ Volume Down: English (default)
+ "
   if choose_volume_key; then
     LOCALE=zh-CN
   else
@@ -284,7 +284,6 @@ if [ -z "$LOCALE" ]; then
   fi
 fi
 
-printe
 print_loc "欢迎使用 Surfing" "Welcome to Surfing"
 remove_old_surfingtile
 
@@ -318,6 +317,7 @@ if [ -d /data/adb/box_bll ]; then
     print_loc "已安装的 SurfingTile 模块版本" "Installed SurfingTile module version"
     print_loc "≥ 当前模块 zip 内置的版本" "is higher than/same as current module zip inbuilt version"
     print_loc "无需更新 SurfingTile 模块" "Updating SurfingTile module is not needed"
+    printe
   fi
 
   if [ "$INSTALL_APK" = true ]; then
