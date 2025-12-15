@@ -294,12 +294,14 @@ if [ -d /data/adb/box_bll ]; then
   SURFING_TILE_MODULE_PROP_INSTALLED="${SURFING_TILE_DIR_UPDATE}/module.prop"
 
   SURFING_TILE_VER_ZIP=$(grep_prop versionCode "$SURFING_TILE_MODULE_PROP_ZIP")
-  SURFING_TILE_VER_INSTALLED=$(grep_prop versionCode "$SURFING_TILE_MODULE_PROP_INSTALLED") || SURFING_TILE_VER_INSTALLED=0
+  SURFING_TILE_VER_INSTALLED=$(grep_prop versionCode "$SURFING_TILE_MODULE_PROP_INSTALLED")
+  
+  [ -z "$SURFING_TILE_VER_INSTALLED" ] && SURFING_TILE_VER_INSTALLED=0
 
   if [ "$INSTALL_TILE" = true ]; then
     rm -rf /data/adb/modules/Surfingtile 2>/dev/null
     rm -rf /data/adb/modules/Surfing_Tile 2>/dev/null
-    install_surfingtile_module
+    install_surfingtile
   elif [ "$SURFING_TILE_VER_IN_ZIP" -gt "$SURFING_TILE_VER_INSTALLED" ]; then
     print_loc "检测到旧版本 SurfingTile 模块" "Detect old version of SurfingTile module"
     print_loc "升级中" "Updating"
