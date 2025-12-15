@@ -5,8 +5,6 @@ ASH_STANDALONE=1
 
 LOCALE=$(getprop "persist.sys.locale")
 
-LOCALE=$(getprop "persist.sys.locale")
-
 SURFING_PATH="/data/adb/modules/Surfing"
 SCRIPTS_PATH="/data/adb/box_bll/scripts"
 NET_PATH="/data/misc/net"
@@ -111,7 +109,7 @@ restore_subscribe_urls() {
 install_web_apk() {
   if [ -f "$APK_FILE" ]; then
     cp "$APK_FILE" "$INSTALL_DIR/"
-    print_loc "正在安装 Web APP…" "Installing Web APP..."
+    print_loc "正在安装 Web APK…" "Installing Web APK..."
     pm install "$INSTALL_DIR/Web.apk" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
       print_loc "已安装" "Success"
@@ -130,7 +128,7 @@ install_surfingtile_apk() {
   APK_TMP="$INSTALL_DIR/com.surfing.tile.apk"
   if [ -f "$APK_SRC" ]; then
     cp "$APK_SRC" "$APK_TMP"
-    print_loc "正在安装 SurfingTile APP…" "Installing SurfingTile APP..."
+    print_loc "正在安装 SurfingTile APK…" "Installing SurfingTile APK..."
     pm install "$APK_TMP" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
       print_loc "已安装" "Success"
@@ -167,8 +165,8 @@ install_surfingtile_module() {
 
 install_surfingtile() {
 
-  install_Surfingtile_apk
   install_surfingtile_module
+  install_surfingtile_apk
 
 }
 
@@ -225,7 +223,7 @@ choose_to_install_surfingtile() {
   fi
 }
 
-choose_to_install_Web_apk() {
+choose_to_install_web_apk() {
   printl
   printe
   print_loc "是否安装 Web APP?" "Install Web APP?"
@@ -245,12 +243,12 @@ remove_old_surfingtile() {
   OLD_TILE_APP="$(pm path "com.yadli.surfingtile" 2>/dev/null | sed 's/package://')"
 
   if [ -d "$OLD_TILE_MODDIR" ]; then
-    print_loc "卸载旧版本 SurfingTile 模块中…" "Uninstalling old SurfingTile module..."
+    print_loc "正在卸载旧版本 SurfingTile 模块…" "Uninstalling old SurfingTile module..."
     touch "${OLD_TILE_MODDIR}/remove" && print_loc "重启后完成卸载" "Reboot to take effect"
   fi
 
   if [ -n "$OLD_TILE_APP" ]; then
-    print_loc "卸载旧版本 SurfingTile APP 中…" "Uninstalling old SurfingTile APP..."
+    print_loc "正在卸载旧版本 SurfingTile APP…" "Uninstalling old SurfingTile APP..."
     pm uninstall "com.yadli.surfingtile" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
       print_loc "已卸载" "Success"
@@ -304,7 +302,7 @@ if [ -d /data/adb/box_bll ]; then
     rm -rf /data/adb/modules/Surfingtile 2>/dev/null
     rm -rf /data/adb/modules/Surfing_Tile 2>/dev/null
     install_surfingtile
-  elif [ "$SURFING_TILE_VER_IN_ZIP" -gt "$SURFING_TILE_VER_INSTALLED" ]; then
+  elif [ "$SURFING_TILE_VER_ZIP" -gt "$SURFING_TILE_VER_INSTALLED" ]; then
     print_loc "检测到旧版本 SurfingTile 模块" "Detect old version of SurfingTile module"
     print_loc "升级中" "Updating"
     install_surfingtile
@@ -366,8 +364,7 @@ else
   ui_print " ↴"
   mv "$MODPATH/box_bll" /data/adb/
   choose_to_install_surfingtile
-  choose_to_install_Web_apk
-  choose_to_umount_hosts_file
+  choose_to_install_web_apk
   printl
   printe
   print_loc "模块安装完毕，工作目录为：" "Module installation completed. Working directory:"
@@ -375,10 +372,12 @@ else
   ui_print " /data/adb/box_bll/"
   printe
   print_loc "请在该工作目录下的 config.yaml" "Please add your subscription to"
-  print_loc "添加你的订阅" "config.yaml under the working directory"
+  print_loc "添加你的订阅地址" "config.yaml under the working directory"
   printe
   print_loc "首次安装完成后需要重启" "A reboot is required after first installation..."
   printe
+
+  choose_to_umount_hosts_file
   
 fi
 
