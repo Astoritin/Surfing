@@ -46,6 +46,24 @@ printl() {  # print line
 
 printe() { ui_print " "; }  # print empty line
 
+query_var() {
+
+    for var_name in "$@"; do
+        eval printf '%s=%s\\n' "$var_name" \"\$$var_name\"
+    done
+
+}
+
+print_var() {
+
+    [ $# -eq 0 ] && return 1
+
+    query_var "$@" | while IFS= read -r line || [ -n "$line" ]; do
+        ui_print " $line"
+    done
+
+}
+
 if [ "$MODULE_VERSION_CODE" -lt 1622 ]; then
   INSTALL_APK=true
   INSTALL_TILE_APK=true
@@ -301,7 +319,14 @@ if [ -d /data/adb/box_bll ]; then
   SURFING_TILE_MODULE_PROP_INSTALLED="${SURFING_TILE_DIR_UPDATE}/module.prop"
 
   SURFING_TILE_VER_ZIP=$(grep_prop versionCode "$SURFING_TILE_MODULE_PROP_ZIP")
-  SURFING_TILE_VER_INSTALLED=$(grep_prop versionCode "$SURFING_TILE_MODULE_PROP_INSTALLED") || SURFING_TILE_VER_INSTALLED=0
+  SURFING_TILE_VER_INSTALLED=$(grep_prop versionCode "$SURFING_TILE_MODULE_PROP_INSTALLED")
+  
+  [ -z "$SURFING_TILE_VER_INSTALLED" ] && SURFING_TILE_VER_INSTALLED=0
+
+  print_var "SURFING_TILE_MODULE_PROP_ZIP" "SURFING_TILE_MODULE_PROP_INSTALLED" "SURFING_TILE_VER_ZIP" "SURFING_TILE_VER_INSTALLED"
+
+  [ -f "$SURFING_TILE_MODULE_PROP_ZIP" ] && ui_print " SURFING_TILE_MODULE_PROP_ZIP: exists"
+  [ -f "$SURFING_TILE_MODULE_PROP_INSTALLED" ] && ui_print " SURFING_TILE_MODULE_PROP_INSTALLED: exists"
 
   if [ "$INSTALL_TILE_APK" = true ]; then
     install_surfingtile
