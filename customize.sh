@@ -116,10 +116,10 @@ checkout_metamodule() {
             current_module_prop="$current_module_dir/module.prop"
             [ -e "$current_module_prop" ] || continue
 
-            is_metamodule=$(get_config_var "metamodule" "$current_module_prop")
-            current_module_name=$(get_config_var "name" "$current_module_prop")
-            current_module_ver_name=$(get_config_var "version" "$current_module_prop")
-            current_module_ver_code=$(get_config_var "versionCode" "$current_module_prop")
+            is_metamodule=$(grep_prop "metamodule" "$current_module_prop")
+            current_module_name=$(grep_prop "name" "$current_module_prop")
+            current_module_ver_name=$(grep_prop "version" "$current_module_prop")
+            current_module_ver_code=$(grep_prop "versionCode" "$current_module_prop")
             case "$is_metamodule" in
                 1|true ) [ ! -f "$current_module_dir/disable" ] && [ ! -f "$current_module_dir/remove" ] && return 0;;
             esac
