@@ -106,6 +106,29 @@ restore_subscribe_urls() {
   printe
 }
 
+checkout_metamodule() {
+    modules_dir="/data/adb/modules"
+    modules_update_dir="/data/adb/modules_update"
+
+    for moddir in "$modules_dir" "$modules_update_dir"; do
+        [ -d "$moddir" ] || continue
+        for current_module_dir in "$moddir"/*; do
+            current_module_prop="$current_module_dir/module.prop"
+            [ -e "$current_module_prop" ] || continue
+
+            is_metamodule=$(get_config_var "metamodule" "$current_module_prop")
+            current_module_name=$(get_config_var "name" "$current_module_prop")
+            current_module_ver_name=$(get_config_var "version" "$current_module_prop")
+            current_module_ver_code=$(get_config_var "versionCode" "$current_module_prop")
+            case "$is_metamodule" in
+                1|true ) [ ! -f "$current_module_dir/disable" ] && [ ! -f "$current_module_dir/remove" ] && return 0;;
+            esac
+
+        done
+    done
+    return 1
+}
+
 install_web_apk() {
   if [ -f "$APK_FILE" ]; then
     cp "$APK_FILE" "$INSTALL_DIR/"
@@ -159,6 +182,13 @@ install_surfingtile_module() {
       printe
       print_loc "注意：如果你不知道元模块是什么" "NOTICE: If you don’t know what is meta-module,"
       print_loc "请查阅 KernelSU 官方网站" "please check KernelSU official website."
+      printe
+      if ! checkout_metamodule; then
+        print_loc "警告：未检测到任何元模块存在，SurfingTile 可能无法正常挂载为系统应用" "Warn: No meta-module detect, SurfingTile may not be mounted as system app"
+      else
+        print_loc "检测到元模块：" "Detect meta-module: "
+        ui_print " ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
+      fi
       printe
   fi
 }
