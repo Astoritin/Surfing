@@ -129,6 +129,15 @@ checkout_metamodule() {
     return 1
 }
 
+detect_scene_and_skip_install_SurfingTile_to_avoid_mount_bug_for_metamodule() {
+
+  if [ -e "/data/adb/modules/scene_systemless/module.prop" ] || [ -e "/data/adb/modules_update/scene_systemless/module.prop" ]; then
+    return 0
+  fi
+  return 1
+
+}
+
 install_web_apk() {
   if [ -f "$APK_FILE" ]; then
     cp "$APK_FILE" "$INSTALL_DIR/"
@@ -194,6 +203,15 @@ install_surfingtile_module() {
 }
 
 install_surfingtile() {
+
+  if [ "$KSU" = true ] && [ "$KSU_VER_CODE" -ge 22098 ]; then
+    if detect_scene_and_skip_install_SurfingTile_to_avoid_mount_bug_for_metamodule; then
+      print_loc "已跳过安装 SurfingTile 以临时解决" "Skipped installation of SurfingTile as a temporary solution"
+      print_loc "由于 Scene 附加模块1 的不规范空挂载" "due to non-standard empty mount from Scene systemless module 1"
+      print_loc "导致的部分元模块挂载问题" "causing mounting issues for some meta-modules"
+      return 0
+    fi
+  fi
 
   install_surfingtile_module
   install_surfingtile_apk
