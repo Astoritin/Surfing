@@ -24,6 +24,8 @@ SURFING_TILE_DIR="/data/adb/modules_update/SurfingTile"
 MODULE_PROP_PATH="/data/adb/modules/Surfing/module.prop"
 MODULE_VERSION_CODE=$(grep_prop versionCode "$MODULE_PROP_PATH")
 
+MIN_VER_KSU_USE_METAMODULE=22098
+
 print_loc() {  # print locale content
 
   if [ "$LOCALE" = "zh-CN" ] || [ "$LOCALE" = "zh-Hans-CN" ]; then
@@ -183,17 +185,18 @@ install_surfingtile_module() {
   cp -f "$SURFING_TILE_DIR/module.prop" "$SURFING_TILE_DIR_UPDATE"
   touch "$SURFING_TILE_DIR_UPDATE/update"
 
-  if [ "$KSU" = true ] && [ "$KSU_VER_CODE" -ge 22098 ]; then
+  if [ "$KSU" = true ] && [ "$KSU_VER_CODE" -ge "$MIN_VER_KSU_USE_METAMODULE" ]; then
       printe
-      print_loc "检测到当前 KernelSU 版本使用了元模块功能" "Detect current KernelSU is using meta-module feature"
-      print_loc "如果你需要 SurfingTile 模块生效" "Make sure you have installed meta-module"
+      print_loc "检测到当前 KernelSU 版本正在使用" "Detect current KernelSU is using meta-module feature"
+      print_loc "元模块功能，若要 SurfingTile 模块生效" "Make sure you have installed meta-module"
       print_loc "请务必确保已安装元模块!" "if you want SurfingTile module to take effect!"
       printe
       print_loc "注意：如果你不知道元模块是什么" "NOTICE: If you don’t know what is meta-module,"
-      print_loc "请查阅 KernelSU 官方网站" "please check KernelSU official website."
+      print_loc "请查阅 KernelSU 官方网站" "please check KernelSU official website"
       printe
       if ! checkout_metamodule; then
-        print_loc "警告：未检测到任何元模块存在，SurfingTile 可能无法正常挂载为系统应用" "Warn: No meta-module detect, SurfingTile may not be mounted as system app"
+        print_loc "警告：未检测到任何元模块存在" "WARN: No meta-module detect"
+        print_loc "SurfingTile 可能无法正常挂载为系统应用" "SurfingTile may not be mounted as system app"
       else
         print_loc "检测到元模块：" "Detect meta-module: "
         ui_print " ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
@@ -204,11 +207,11 @@ install_surfingtile_module() {
 
 install_surfingtile() {
 
-  if [ "$KSU" = true ] && [ "$KSU_VER_CODE" -ge 22098 ]; then
+  if [ "$KSU" = true ] && [ "$KSU_VER_CODE" -ge "$MIN_VER_KSU_USE_METAMODULE" ]; then
     if detect_scene_and_skip_install_SurfingTile_to_avoid_mount_bug_for_metamodule; then
       print_loc "已跳过安装 SurfingTile 以临时解决" "Skipped installation of SurfingTile as a temporary solution"
       print_loc "由于 Scene 附加模块1 的不规范空挂载" "due to non-standard empty mount from Scene systemless module 1"
-      print_loc "导致的部分元模块挂载问题" "causing mounting issues for some meta-modules"
+      print_loc "导致的部分元模块挂载失败问题" "causing mounting failed issues for some meta-modules"
       return 0
     fi
   fi
@@ -317,7 +320,7 @@ if [ -z "$LOCALE" ]; then
  
  音量增加键：简体中文
  Volume Up: Simplified Chinese
- 音量减少键：English
+ 音量减少键：English (默认)
  Volume Down: English (default)
  "
   if choose_volume_key; then
