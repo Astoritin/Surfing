@@ -26,7 +26,7 @@ MODULE_VERSION_CODE=$(grep_prop versionCode "$MODULE_PROP_PATH")
 
 print_loc() {  # print locale content
 
-  if [ "$LOCALE" = "zh-CN" ]; then
+  if [ "$LOCALE" = "zh-CN" ] || [ "$LOCALE" = "zh-Hans-CN" ]; then
     ui_print " $1"
   else
     ui_print " $2"
