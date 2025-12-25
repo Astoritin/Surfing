@@ -267,7 +267,7 @@ choose_to_install_web_apk() {
     eco "已跳过安装 Web APP…" "Skip installing Web APP..."
     ecoe
   else
-    install_Web_apk
+    install_web_apk
   fi
 }
 
