@@ -199,13 +199,13 @@ Android user group IDs:
 
 ## Acknowledgments
 
-<a href="https://github.com/CHIZI-0618">
-  <p align="center">
+<div align="center">
+  <a href="https://github.com/CHIZI-0618">
     <img src="https://github.com/CHIZI-0618.png" width="100" height="100" alt="CHIZI-0618">
     <br>
     <strong>CHIZI-0618</strong>
-  </p>
-</a>
+  </a>
+</div>
 
 <div align="center">
   <a href="https://github.com/MetaCubeX"><strong>MetaCubeX</strong></a>
@@ -214,6 +214,7 @@ Android user group IDs:
 <div align="center">
   <a href="https://github.com/Loyalsoldier"><strong>Loyalsoldier</strong></a>
 </div>
+
 <div align="center">
   <p> > Thanks for providing valuable foundation for the implementation of this project. < </p>
 </div>

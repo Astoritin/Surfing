@@ -29,7 +29,6 @@ if [ ! -f "${box_path}/manual" ] && [ ! -f "${module_dir}/disable" ]; then
   mv "${run_path}/run_error.log" "${run_path}/run_error.log.bak" 2>/dev/null
   "${scripts_dir}/box.service" start >> "${run_path}/run.log" 2>> "${run_path}/run_error.log" && \
   "${scripts_dir}/box.iptables" enable >> "${run_path}/run.log" 2>> "${run_path}/run_error.log"
-  "${scripts_dir}/box.linkclear" >> "${run_path}/run_error.log" 2>&1 &
 fi
 
 chown -R 0:0 /data/adb/box_bll/clash/etc/

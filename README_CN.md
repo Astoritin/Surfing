@@ -196,13 +196,13 @@ GitHub Actions 北京时间每天早上 6 点自动构建，保证规则最新
 
 ## 致谢
 
-<a href="https://github.com/CHIZI-0618">
-  <p align="center">
+<div align="center">
+  <a href="https://github.com/CHIZI-0618">
     <img src="https://github.com/CHIZI-0618.png" width="100" height="100" alt="CHIZI-0618">
     <br>
     <strong>CHIZI-0618</strong>
-  </p>
-</a>
+  </a>
+</div>
 
 <div align="center">
   <a href="https://github.com/MetaCubeX"><strong>MetaCubeX</strong></a>
@@ -211,6 +211,7 @@ GitHub Actions 北京时间每天早上 6 点自动构建，保证规则最新
 <div align="center">
   <a href="https://github.com/Loyalsoldier"><strong>Loyalsoldier</strong></a>
 </div>
+
 <div align="center">
   <p> > 感谢为本项目的实现提供了宝贵的基础 < </p>
 </div>
