@@ -24,9 +24,9 @@ SURFING_TILE_DIR="/data/adb/modules_update/SurfingTile"
 MODULE_PROP_PATH="/data/adb/modules/Surfing/module.prop"
 MODULE_VERSION_CODE=$(grep_prop versionCode "$MODULE_PROP_PATH")
 
-MIN_VER_KSU_USE_METAMODULE=22098
+press_a_key_timeout=10
 
-print_loc() {  # print locale content
+eco() {  # ec(h)o locale content
 
   if [ "$LOCALE" = "zh-CN" ] || [ "$LOCALE" = "zh-Hans-CN" ]; then
     ui_print " $1"
@@ -36,7 +36,7 @@ print_loc() {  # print locale content
 
 }
 
-printl() {  # print line
+ecol() {  # ec(h)o line
 
   length=28
   symbol=*
@@ -46,14 +46,13 @@ printl() {  # print line
 
 }
 
-printe() { ui_print " "; }  # print empty line
+ecoe() { ui_print " "; }  # ec(h)o empty line
 
 if [ "$MODULE_VERSION_CODE" -lt 1638 ]; then
   INSTALL_TILE=true
 else
   INSTALL_TILE=false
 fi
-
 
 if [ "$BOOTMODE" != true ]; then
   abort "Error: Please install via Magisk Manager / KernelSU Manager / APatch"
@@ -79,13 +78,13 @@ extract_subscribe_urls() {
     sed 's/&/\\&/g' > "$BACKUP_FILE"
     
     if [ -s "$BACKUP_FILE" ]; then
-      print_loc "已备份订阅地址至：" "Backed up the subscription URLs to:"
+      eco "已备份订阅地址至：" "Backed up the subscription URLs to:"
       ui_print " proxies/subscribe_urls_backup.txt"
     else
-      print_loc "未找到 URLs，请检查配置文件格式" "No URLs found. Check config format."
+      eco "未找到 URLs，请检查配置文件格式" "No URLs found. Check config format."
     fi
   else
-    print_loc "配置文件不存在，无法提取 URLs" "Config file missing. Cannot extract URLs."
+    eco "配置文件不存在，无法提取 URLs" "Config file missing. Cannot extract URLs."
   fi
 }
 
@@ -101,11 +100,11 @@ restore_subscribe_urls() {
          /profile:/ { inBlock = 0 }
          { print }
         ' "$BACKUP_FILE" "$CONFIG_FILE" > "$CONFIG_FILE.tmp" && mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-    print_loc "已还原 URLs 至 config.yaml" "Restored URLs to config.yaml"
+    eco "已还原 URLs 至 config.yaml" "Restored URLs to config.yaml"
   else
-    print_loc "找不到可用备份，已跳过还原" "No valid backup found. Skipped restore."
+    eco "找不到可用备份，已跳过还原" "No valid backup found. Skipped restore."
   fi
-  printe
+  ecoe
 }
 
 checkout_metamodule() {
@@ -131,30 +130,21 @@ checkout_metamodule() {
     return 1
 }
 
-detect_scene_and_skip_install_SurfingTile_to_avoid_mount_bug_for_metamodule() {
-
-  if [ -e "/data/adb/modules/scene_systemless/module.prop" ] || [ -e "/data/adb/modules_update/scene_systemless/module.prop" ]; then
-    return 0
-  fi
-  return 1
-
-}
-
 install_web_apk() {
   if [ -f "$APK_FILE" ]; then
     cp "$APK_FILE" "$INSTALL_DIR/"
-    print_loc "正在安装 Web APK…" "Installing Web APK..."
+    eco "正在安装 Web APK…" "Installing Web APK..."
     pm install "$INSTALL_DIR/Web.apk" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-      print_loc "已安装" "Success"
+      eco "已安装" "Success"
     else
-      print_loc "安装失败" "Failed"
+      eco "安装失败" "Failed"
     fi
     rm -rf "$INSTALL_DIR/Web.apk"
   else
-    print_loc "未找到 Web.apk" "Web.apk not found"
+    eco "未找到 Web.apk" "Web.apk not found"
   fi
-  printe
+  ecoe
 }
 
 install_surfingtile_apk() {
@@ -162,18 +152,18 @@ install_surfingtile_apk() {
   APK_TMP="$INSTALL_DIR/com.surfing.tile.apk"
   if [ -f "$APK_SRC" ]; then
     cp "$APK_SRC" "$APK_TMP"
-    print_loc "正在安装 SurfingTile APK…" "Installing SurfingTile APK..."
+    eco "正在安装 SurfingTile APK…" "Installing SurfingTile APK..."
     pm install "$APK_TMP" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-      print_loc "已安装" "Success"
+      eco "已安装" "Success"
     else
-      print_loc "安装失败" "Failed"
+      eco "安装失败" "Failed"
     fi
     rm -f "$APK_TMP"
   else
-    print_loc "未找到 SurfingTile APK" "SurfingTile APK not found"
+    eco "未找到 SurfingTile APK" "SurfingTile APK not found"
   fi
-  printe
+  ecoe
 }
 
 install_surfingtile_module() {
@@ -185,36 +175,27 @@ install_surfingtile_module() {
   cp -f "$SURFING_TILE_DIR/module.prop" "$SURFING_TILE_DIR_UPDATE"
   touch "$SURFING_TILE_DIR_UPDATE/update"
 
-  if [ "$KSU" = true ] && [ "$KSU_VER_CODE" -ge "$MIN_VER_KSU_USE_METAMODULE" ]; then
-      printe
-      print_loc "检测到当前 KernelSU 版本正在使用" "Detect current KernelSU is using meta-module feature"
-      print_loc "元模块功能，若要 SurfingTile 模块生效" "Make sure you have installed meta-module"
-      print_loc "请务必确保已安装元模块!" "if you want SurfingTile module to take effect!"
-      printe
-      print_loc "注意：如果你不知道元模块是什么" "NOTICE: If you don’t know what is meta-module,"
-      print_loc "请查阅 KernelSU 官方网站" "please check KernelSU official website"
-      printe
+  if [ "$KSU" = true ] && [ "$KSU_VER_CODE" -ge 22098 ]; then
+      ecoe
+      eco "检测到当前 KernelSU 版本正在使用" "Detect current KernelSU is using meta-module feature"
+      eco "元模块功能，若要 SurfingTile 模块生效" "Make sure you have installed meta-module"
+      eco "请务必确保已安装元模块!" "if you want SurfingTile module to take effect!"
+      ecoe
+      eco "注意：如果你不知道元模块是什么" "NOTICE: If you don’t know what is meta-module,"
+      eco "请查阅 KernelSU 官方网站" "please check KernelSU official website"
+      ecoe
       if ! checkout_metamodule; then
-        print_loc "警告：未检测到任何元模块存在" "WARN: No meta-module detect"
-        print_loc "SurfingTile 可能无法正常挂载为系统应用" "SurfingTile may not be mounted as system app"
+        eco "警告：未检测到任何元模块存在" "WARN: No meta-module detect"
+        eco "SurfingTile 可能无法正常挂载为系统应用" "SurfingTile may not be mounted as system app"
       else
-        print_loc "检测到元模块：" "Detect meta-module: "
+        eco "检测到当前元模块：" "Detect current meta-module: "
         ui_print " ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
       fi
-      printe
+      ecoe
   fi
 }
 
 install_surfingtile() {
-
-  if [ "$KSU" = true ] && [ "$KSU_VER_CODE" -ge "$MIN_VER_KSU_USE_METAMODULE" ]; then
-    if detect_scene_and_skip_install_SurfingTile_to_avoid_mount_bug_for_metamodule; then
-      print_loc "已跳过安装 SurfingTile 以临时解决" "Skipped installation of SurfingTile as a temporary solution"
-      print_loc "由于 Scene 附加模块1 的不规范空挂载" "due to non-standard empty mount from Scene systemless module 1"
-      print_loc "导致的部分元模块挂载失败问题" "causing mounting failed issues for some meta-modules"
-      return 0
-    fi
-  fi
 
   install_surfingtile_module
   install_surfingtile_apk
@@ -222,15 +203,14 @@ install_surfingtile() {
 }
 
 choose_volume_key() {
-    timeout_seconds=10
     sleep 0.5
-    print_loc "等待按键中 (${timeout_seconds}秒)" "Waiting for pressing key (${timeout_seconds}s)..."
+    eco "等待按键中 (${press_a_key_timeout}秒)" "Waiting for pressing key (${press_a_key_timeout}s)..."
 
-    read -r -t $timeout_seconds line < <(getevent -ql | awk '/KEY_VOLUME/ {print; exit}')
+    read -r -t $press_a_key_timeout line < <(getevent -ql | awk '/KEY_VOLUME/ {print; exit}')
 
-    printe
+    ecoe
     if [ $? -eq 142 ]; then
-        print_loc "未检测到按键，执行默认选项…" "No input detected. Running default option..."
+        eco "未检测到按键，执行默认选项…" "No input detected. Running default option..."
         return 1
     fi
 
@@ -242,50 +222,50 @@ choose_volume_key() {
 }
 
 choose_to_umount_hosts_file() {
-  printl
-  printe
-  print_loc "是否挂载 hosts 文件至系统？" "Mount the hosts file to the system ?"
-  printe
-  print_loc "音量增加键：挂载" "Volume Up: Mount"
-  print_loc "音量减少键：卸载 (默认)" "Volume Down: Uninstall (default)"
+  ecol
+  ecoe
+  eco "是否挂载 hosts 文件至系统？" "Mount the hosts file to the system ?"
+  ecoe
+  eco "音量增加键：挂载" "Volume Up: Mount"
+  eco "音量减少键：卸载 (默认)" "Volume Down: Uninstall (default)"
 
   if choose_volume_key; then
-    print_loc "已挂载 hosts 文件" "Hosts file mounted"
+    eco "已挂载 hosts 文件" "Hosts file mounted"
   else
-    print_loc "已卸载 hosts 文件" "Uninstalling hosts file is complete"
+    eco "已卸载 hosts 文件" "Uninstalling hosts file is complete"
     rm -f "$HOSTS_FILE"
   fi
-  printe
+  ecoe
 
 }
 
 choose_to_install_surfingtile() {
-  printl
-  printe
-  print_loc "是否安装 SurfingTile APP?" "Install SurfingTile APP?"
-  printe
-  print_loc "音量增加键：否" "Volume Up: No"
-  print_loc "音量减少键：是 (默认)" "Volume Down: Yes (default)"
+  ecol
+  ecoe
+  eco "是否安装 SurfingTile APP?" "Install SurfingTile APP?"
+  ecoe
+  eco "音量增加键：否" "Volume Up: No"
+  eco "音量减少键：是 (默认)" "Volume Down: Yes (default)"
 
   if choose_volume_key; then
-    print_loc "已跳过安装 SurfingTile APP…" "Skip installing SurfingTile APP..."
-    printe
+    eco "已跳过安装 SurfingTile APP…" "Skip installing SurfingTile APP..."
+    ecoe
   else
     install_surfingtile
   fi
 }
 
 choose_to_install_web_apk() {
-  printl
-  printe
-  print_loc "是否安装 Web APP?" "Install Web APP?"
-  printe
-  print_loc "音量增加键：否" "Volume Up: No"
-  print_loc "音量减少键：是 (默认)" "Volume Down: Yes (default)"
+  ecol
+  ecoe
+  eco "是否安装 Web APP?" "Install Web APP?"
+  ecoe
+  eco "音量增加键：否" "Volume Up: No"
+  eco "音量减少键：是 (默认)" "Volume Down: Yes (default)"
 
   if choose_volume_key; then
-    print_loc "已跳过安装 Web APP…" "Skip installing Web APP..."
-    printe
+    eco "已跳过安装 Web APP…" "Skip installing Web APP..."
+    ecoe
   else
     install_Web_apk
   fi
@@ -296,17 +276,17 @@ remove_old_surfingtile() {
   OLD_TILE_APP="$(pm path "com.yadli.surfingtile" 2>/dev/null | sed 's/package://')"
 
   if [ -d "$OLD_TILE_MODDIR" ]; then
-    print_loc "正在卸载旧版本 SurfingTile 模块…" "Uninstalling old SurfingTile module..."
-    touch "${OLD_TILE_MODDIR}/remove" && print_loc "重启后完成卸载" "Reboot to take effect"
+    eco "正在卸载旧版本 SurfingTile 模块…" "Uninstalling old SurfingTile module..."
+    touch "${OLD_TILE_MODDIR}/remove" && eco "重启后完成卸载" "Reboot to take effect"
   fi
 
   if [ -n "$OLD_TILE_APP" ]; then
-    print_loc "正在卸载旧版本 SurfingTile APP…" "Uninstalling old SurfingTile APP..."
+    eco "正在卸载旧版本 SurfingTile APP…" "Uninstalling old SurfingTile APP..."
     pm uninstall "com.yadli.surfingtile" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-      print_loc "已卸载" "Success"
+      eco "已卸载" "Success"
     else
-      print_loc "卸载失败" "Failed"
+      eco "卸载失败" "Failed"
     fi
   fi
 }
@@ -314,7 +294,7 @@ remove_old_surfingtile() {
 unzip -qo "${ZIPFILE}" -x 'META-INF/*' -d "$MODPATH"
 
 if [ -z "$LOCALE" ]; then
-  printe
+  ecoe
   ui_print " 请选择你所使用的语言：
  Please select your language:
  
@@ -322,26 +302,27 @@ if [ -z "$LOCALE" ]; then
  Volume Up: Simplified Chinese
  音量减少键：English (默认)
  Volume Down: English (default)
- "
+
+ 等待按键中 (${press_a_key_timeout}秒)"
   if choose_volume_key; then
-    LOCALE=zh-CN
+    LOCALE="zh-CN"
   else
-    LOCALE=en-US
+    LOCALE="en-US"
   fi
 fi
 
-print_loc "欢迎使用 Surfing" "Welcome to Surfing"
+eco "欢迎使用 Surfing" "Welcome to Surfing"
 remove_old_surfingtile
 
 if [ -d /data/adb/box_bll ]; then
-  print_loc "更新中…" "Updating..."
+  eco "更新中…" "Updating..."
   ui_print " ↴"
-  printl
-  printe
-  print_loc "正在初始化服务…" "Initializing services..."
+  ecol
+  ecoe
+  eco "正在初始化服务…" "Initializing services..."
   /data/adb/box_bll/scripts/box.service stop > /dev/null 2>&1
   sleep 1.5
-  printe
+  ecoe
 
   SURFING_TILE_MODULE_PROP_ZIP="${SURFING_TILE_DIR}/module.prop"
   SURFING_TILE_MODULE_PROP_INSTALLED="${SURFING_TILE_DIR_UPDATE}/module.prop"
@@ -356,18 +337,18 @@ if [ -d /data/adb/box_bll ]; then
     rm -rf /data/adb/modules/Surfing_Tile 2>/dev/null
     install_surfingtile
   elif [ "$SURFING_TILE_VER_ZIP" -gt "$SURFING_TILE_VER_INSTALLED" ]; then
-    print_loc "检测到旧版本 SurfingTile 模块" "Detect old version of SurfingTile module"
-    print_loc "升级中" "Updating"
+    eco "检测到旧版本 SurfingTile 模块" "Detect old version of SurfingTile module"
+    eco "升级中…" "Updating..."
     install_surfingtile
   elif [ "$SURFING_TILE_VER_INSTALLED" -eq 0 ]; then
-    print_loc "未检测到 SurfingTile 模块" "SurfingTile module is not found"
-    printe
+    eco "未检测到 SurfingTile 模块" "SurfingTile module is not found"
+    ecoe
     choose_to_install_surfingtile
   else
-    print_loc "已安装的 SurfingTile 模块版本" "Installed SurfingTile module version"
-    print_loc "≥ 当前模块 zip 内置的版本" "is higher than/same as current module zip inbuilt version"
-    print_loc "无需更新 SurfingTile 模块" "Updating SurfingTile module is not needed"
-    printe
+    eco "已安装的 SurfingTile 模块版本" "Installed SurfingTile module version"
+    eco "≥ 当前模块 zip 内置的版本" "is higher than/same as current module zip inbuilt version"
+    eco "无需更新 SurfingTile 模块" "Update SurfingTile module is not needed"
+    ecoe
   fi
 
   extract_subscribe_urls
@@ -406,29 +387,28 @@ if [ -d /data/adb/box_bll ]; then
   choose_to_umount_hosts_file
   
   sleep 1
-  printl
-  printe
-  print_loc "正在重启服务…" "Restarting service..."
+  ecol
+  ecoe
+  eco "正在重启服务…" "Restarting service..."
   /data/adb/box_bll/scripts/box.service start > /dev/null 2>&1
-  print_loc "更新完成，无需重启" "Update completed. No need to reboot."
-  printe
+  eco "更新完成，无需重启" "Update completed. No need to reboot."
+  ecoe
 else
-  print_loc "安装中…" "Installing..."
+  eco "安装中…" "Installing..."
   ui_print " ↴"
   mv "$MODPATH/box_bll" /data/adb/
   choose_to_install_surfingtile
   choose_to_install_web_apk
-  printl
-  printe
-  print_loc "模块安装完毕，工作目录为：" "Module installation completed. Working directory:"
-  printe
+  ecol
+  ecoe
+  eco "模块安装完毕，工作目录为：" "Module installation completed. Working directory:"
   ui_print " /data/adb/box_bll/"
-  printe
-  print_loc "请在该工作目录下的 config.yaml" "Please add your subscription to"
-  print_loc "添加你的订阅地址" "config.yaml under the working directory"
-  printe
-  print_loc "首次安装完成后需要重启" "A reboot is required after first installation..."
-  printe
+  ecoe
+  eco "请在该工作目录下的 config.yaml" "Please add your subscription to"
+  eco "添加你的订阅地址" "config.yaml under the working directory"
+  ecoe
+  eco "首次安装完成后需要重启" "A reboot is required after first installation"
+  ecoe
 
   choose_to_umount_hosts_file
   
