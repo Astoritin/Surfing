@@ -15,44 +15,40 @@ TZ=Asia/Shanghai
 export TZ
  
 TMP_DIR="/dev/tmp"
+LINKCLEAR_LOCK="${TMP_DIR}/linkclear.lock"
 BOOT_STABLE_FLAG="${TMP_DIR}/boot_stable.flag"
 RULES_ADD_FLAG="${TMP_DIR}/rules_add_executed.flag"
 
-LINKCLEAR_LOCK="${TMP_DIR}/linkclear.lock"
- 
-[ ! -d "$TMP_DIR" ] && mkdir -p "$TMP_DIR"
-chmod 777 "$TMP_DIR"
- 
 uptime_sec=$(awk '{print int($1)}' /proc/uptime)
 
-LOCALHOST=127.0.0.1
-PORT=$(sed -n 's/^[[:space:]]*external-controller:[[:space:]]*[^:]*:\([0-9]\+\).*/\1/p' "$CLASH_CONFIG" \
-       | head -n1 \
-       | tr -d '\r\n ')
-
 clear_links() {
+    [ ! -f "$BOOT_STABLE_FLAG" ] && return
+    
     now=$(date +%s)
-
+    
     if [ -f "$LINKCLEAR_LOCK" ]; then
         last=$(cat "$LINKCLEAR_LOCK")
         [ $((now - last)) -lt 15 ] && return
     fi
     echo "$now" > "$LINKCLEAR_LOCK"
-    curl -s -X DELETE "http://${LOCALHOST}:${PORT}/connections" >/dev/null 2>&1
+    
+    PORT=$(grep -E '^[[:space:]]*external-controller:' "$CLASH_CONFIG" \
+        | head -n1 | cut -d':' -f3 | cut -d'#' -f1 | tr -d '\r\n ')
+    curl -s -X DELETE "http://127.0.0.1:${PORT}/connections" >/dev/null 2>&1
 }
 
 rules_add() {
-   iptables -t mangle -F LOCAL_IP_V4
-   ip -4 a | awk '/inet/ {print $2}' | grep -vE "^127\.0\.0\.1" | while read -r local_ipv4; do
+    iptables -t mangle -F LOCAL_IP_V4
+    ip -4 a | awk '/inet/ {print $2}' | grep -vE "^127\.0\.0\.1" | while read -r local_ipv4; do
      iptables -w 100 -t mangle -A LOCAL_IP_V4 -d "$local_ipv4" -j ACCEPT
      iptables -w 100 -t nat -A LOCAL_IP_V4 -d "$local_ipv4" -j ACCEPT
-   done
- 
-   ip6tables -t mangle -F LOCAL_IP_V6
-   ip -6 a | awk '/inet6/ {print $2}' | grep -vE "^fe80|^::1" | while read -r local_ipv6; do
+    done
+    
+    ip6tables -t mangle -F LOCAL_IP_V6
+    ip -6 a | awk '/inet6/ {print $2}' | grep -vE "^fe80|^::1" | while read -r local_ipv6; do
      ip6tables -w 100 -t mangle -A LOCAL_IP_V6 -d "$local_ipv6" -j ACCEPT
-   done
-   clear_links
+    done
+    clear_links
  }
  
 if [ "$events" = "w" ]; then

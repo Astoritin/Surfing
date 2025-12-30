@@ -16,7 +16,9 @@ HOSTS_PATH="/data/adb/box_bll/clash/etc/"
 HOSTS_FILE="/data/adb/box_bll/clash/etc/hosts"
 SYSTEM_HOSTS="/system/etc/hosts"
 
-mkdir -p "$HOSTS_PATH"
+mkdir -p "$HOSTS_PATH" "/dev/tmp/"
+
+sleep 1
 
 inotifyd ${SCRIPTS_DIR}/box.inotify ${modules_dir} > /dev/null 2>&1 &
 inotifyd ${SCRIPTS_DIR}/box.inotify "$HOSTS_PATH" > /dev/null 2>&1 &
