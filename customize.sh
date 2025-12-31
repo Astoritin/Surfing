@@ -3,23 +3,30 @@
 SKIPUNZIP=1
 ASH_STANDALONE=1
 
-SURFING_PATH="/data/adb/modules/Surfing"
-SCRIPTS_PATH="/data/adb/box_bll/scripts"
+CURRENT_MODULES_DIR="/data/adb/modules"
+UPDATE_MODULES_DIR="/data/adb/modules_update"
+[ -n "$(magisk -v | grep lite)" ] && CURRENT_MODULES_DIR="/data/adb/lite_modules"
+[ -n "$(magisk -v | grep lite)" ] && UPDATE_MODULES_DIR="/data/adb/lite_modules_update"
+
+SURFING_PATH="$CURRENT_MODULES_DIR/Surfing"
+BOX_BLL_PATH="/data/adb/box_bll"
+
+SCRIPTS_PATH="$BOX_BLL_PATH/scripts"
 NET_PATH="/data/misc/net"
 CTR_PATH="/data/misc/net/rt_tables"
-CONFIG_FILE="/data/adb/box_bll/clash/config.yaml"
-BACKUP_FILE="/data/adb/box_bll/clash/proxies/subscribe_urls_backup.txt"
+CONFIG_FILE="$BOX_BLL_PATH/clash/config.yaml"
+BACKUP_FILE="$BOX_BLL_PATH/clash/proxies/subscribe_urls_backup.txt"
 APK_FILE="$MODPATH/webroot/Web.apk"
 INSTALL_DIR="/data/app"
-HOSTS_FILE="/data/adb/box_bll/clash/etc/hosts"
-HOSTS_PATH="/data/adb/box_bll/clash/etc"
-HOSTS_BACKUP="/data/adb/box_bll/clash/etc/hosts.bak"
+HOSTS_FILE="$BOX_BLL_PATH/clash/etc/hosts"
+HOSTS_PATH="$BOX_BLL_PATH/clash/etc"
+HOSTS_BACKUP="$BOX_BLL_PATH/clash/etc/hosts.bak"
 
 SURFING_TILE_ZIP="$MODPATH/SurfingTile.zip"
-SURFING_TILE_DIR_UPDATE="/data/adb/modules/SurfingTile"
-SURFING_TILE_DIR="/data/adb/modules_update/SurfingTile"
+CURRENT_SURFING_TILE_DIR="$CURRENT_MODULES_DIR/SurfingTile"
+UPDATE_SURFING_TILE_DIR="$UPDATE_MODULES_DIR/SurfingTile"
 
-MODULE_PROP_PATH="/data/adb/modules/Surfing/module.prop"
+MODULE_PROP_PATH="$CURRENT_MODULES_DIR/Surfing/module.prop"
 MODULE_VERSION_CODE=$(awk -F'=' '/versionCode/ {print $2}' "$MODULE_PROP_PATH")
 
 if [ "$MODULE_VERSION_CODE" -lt 1638 ]; then
@@ -93,7 +100,7 @@ install_web_apk() {
 }
 
 install_surfingtile_apk() {
-  APK_SRC="$SURFING_TILE_DIR/system/app/com.surfing.tile/com.surfing.tile.apk"
+  APK_SRC="$UPDATE_SURFING_TILE_DIR/system/app/com.surfing.tile/com.surfing.tile.apk"
   APK_TMP="$INSTALL_DIR/com.surfing.tile.apk"
   if [ -f "$APK_SRC" ]; then
     cp "$APK_SRC" "$APK_TMP"
@@ -106,13 +113,13 @@ install_surfingtile_apk() {
 }
 
 install_surfingtile_module() {
-  mkdir -p "$SURFING_TILE_DIR"
-  mkdir -p "$SURFING_TILE_DIR_UPDATE"
+  mkdir -p "$UPDATE_SURFING_TILE_DIR"
+  mkdir -p "$CURRENT_SURFING_TILE_DIR"
 
-  unzip -o "$SURFING_TILE_ZIP" -d "$SURFING_TILE_DIR" >/dev/null 2>&1
+  unzip -o "$SURFING_TILE_ZIP" -d "$UPDATE_SURFING_TILE_DIR" >/dev/null 2>&1
 
-  cp -f "$SURFING_TILE_DIR/module.prop" "$SURFING_TILE_DIR_UPDATE"
-  touch "$SURFING_TILE_DIR_UPDATE/update"
+  cp -f "$UPDATE_SURFING_TILE_DIR/module.prop" "$CURRENT_SURFING_TILE_DIR"
+  touch "$CURRENT_SURFING_TILE_DIR/update"
 }
 
 choose_volume_key() {
@@ -149,7 +156,7 @@ choose_to_umount_hosts_file() {
 }
 
 remove_old_surfingtile() {
-  OLD_TILE_MODDIR="/data/adb/modules/Surfingtile"
+  OLD_TILE_MODDIR="$CURRENT_MODULES_DIR/Surfingtile"
   OLD_TILE_APP="$(pm path "com.yadli.surfingtile" 2>/dev/null | sed 's/package://')"
 
   if [ -d "$OLD_TILE_MODDIR" ]; then
@@ -167,16 +174,18 @@ unzip -qo "${ZIPFILE}" -x 'META-INF/*' -d "$MODPATH"
 
 remove_old_surfingtile
 
-if [ -d /data/adb/box_bll ]; then
+if [ -d "$BOX_BLL_PATH" ]; then
   ui_print "Updating..."
   ui_print "↴"
   ui_print "Initializing services..."
-  /data/adb/box_bll/scripts/box.service stop > /dev/null 2>&1
+  "$BOX_BLL_PATH/scripts/box.service" stop > /dev/null 2>&1
   sleep 1.5
     
   if [ "$INSTALL_TILE" = "true" ]; then
     rm -rf /data/adb/modules/Surfingtile 2>/dev/null
+    rm -rf /data/adb/lite_modules/Surfingtile 2>/dev/null
     rm -rf /data/adb/modules/Surfing_Tile 2>/dev/null
+    rm -rf /data/adb/lite_modules/Surfing_Tile 2>/dev/null
     install_surfingtile_module
     install_surfingtile_apk
   fi
@@ -190,11 +199,11 @@ if [ -d /data/adb/box_bll ]; then
   mkdir -p "$HOSTS_PATH"
   touch "$HOSTS_FILE"
   
-  cp /data/adb/box_bll/clash/config.yaml /data/adb/box_bll/clash/config.yaml.bak
-  cp /data/adb/box_bll/scripts/box.config /data/adb/box_bll/scripts/box.config.bak
-  cp -f "$MODPATH/box_bll/clash/config.yaml" /data/adb/box_bll/clash/
-  cp -f "$MODPATH/box_bll/clash/Toolbox.sh" /data/adb/box_bll/clash/  
-  cp -f "$MODPATH/box_bll/scripts/"* /data/adb/box_bll/scripts/
+  cp "$BOX_BLL_PATH/clash/config.yaml" "$BOX_BLL_PATH/clash/config.yaml.bak"
+  cp "$BOX_BLL_PATH/scripts/box.config" "$BOX_BLL_PATH/scripts/box.config.bak"
+  cp -f "$MODPATH/box_bll/clash/config.yaml" "$BOX_BLL_PATH/clash/"
+  cp -f "$MODPATH/box_bll/clash/Toolbox.sh" "$BOX_BLL_PATH/clash/"
+  cp -f "$MODPATH/box_bll/scripts/"* "$BOX_BLL_PATH/scripts/"
   
   restore_subscribe_urls
 
@@ -208,17 +217,17 @@ if [ -d /data/adb/box_bll ]; then
   nohup inotifyd "${SCRIPTS_PATH}/net.inotify" "$NET_PATH" > /dev/null 2>&1 &
   nohup inotifyd "${SCRIPTS_PATH}/ctr.inotify" "$CTR_PATH" > /dev/null 2>&1 &
   sleep 1
-  cp -f "$MODPATH/box_bll/clash/etc/hosts" /data/adb/box_bll/clash/etc/
-  rm -rf /data/adb/box_bll/clash/Model.bin
-  rm -rf /data/adb/box_bll/clash/smart_weight_data.csv
-  rm -rf /data/adb/box_bll/scripts/box.upgrade
+  cp -f "$MODPATH/box_bll/clash/etc/hosts" "$BOX_BLL_PATH/clash/etc/"
+  rm -rf "$BOX_BLL_PATH/clash/Model.bin"
+  rm -rf "$BOX_BLL_PATH/clash/smart_weight_data.csv"
+  rm -rf "$BOX_BLL_PATH/scripts/box.upgrade"
   rm -rf "$MODPATH/box_bll"
 
   choose_to_umount_hosts_file
   
   sleep 1
   ui_print "Restarting service..."
-  /data/adb/box_bll/scripts/box.service start > /dev/null 2>&1
+  "$BOX_BLL_PATH/scripts/box.service" start > /dev/null 2>&1
   ui_print "Update completed. No need to reboot..."
 else
   ui_print "Installing..."
@@ -251,13 +260,13 @@ mv -f "$MODPATH/Surfing_service.sh" "$service_dir/"
 rm -f "$SURFING_TILE_ZIP"
 
 set_perm_recursive "$MODPATH" 0 0 0755 0644
-set_perm_recursive "$SURFING_TILE_DIR" 0 0 0755 0644
-set_perm_recursive /data/adb/box_bll/ 0 3005 0755 0644
-set_perm_recursive /data/adb/box_bll/scripts/ 0 3005 0755 0700
-set_perm_recursive /data/adb/box_bll/bin/ 0 3005 0755 0700
-set_perm_recursive /data/adb/box_bll/clash/etc/ 0 0 0755 0644
+set_perm_recursive "$UPDATE_SURFING_TILE_DIR" 0 0 0755 0644
+set_perm_recursive "$BOX_BLL_PATH/" 0 3005 0755 0644
+set_perm_recursive "$BOX_BLL_PATH/scripts/" 0 3005 0755 0700
+set_perm_recursive "$BOX_BLL_PATH/bin/" 0 3005 0755 0700
+set_perm_recursive "$BOX_BLL_PATH/clash/etc/" 0 0 0755 0644
 set_perm "$service_dir/Surfing_service.sh" 0 0 0700
 
-chmod ugo+x /data/adb/box_bll/scripts/*
+chmod ugo+x "$BOX_BLL_PATH/scripts/"*
 
 rm -f customize.sh
