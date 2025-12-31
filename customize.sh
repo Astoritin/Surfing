@@ -29,9 +29,9 @@ press_a_key_timeout=10
 eco() {  # ec(h)o locale content
 
   if [ "$LOCALE" = "zh-CN" ] || [ "$LOCALE" = "zh-Hans-CN" ]; then
-    ui_print " $1"
+    ui_print "- $1"
   else
-    ui_print " $2"
+    ui_print "- $2"
   fi
 
 }
@@ -55,9 +55,9 @@ else
 fi
 
 if [ "$BOOTMODE" != true ]; then
-  abort "Error: Please install via Magisk Manager / KernelSU Manager / APatch"
+  abort "! ERROR: Installing in Recovery mode is not support!"
 elif [ "$KSU" = true ] && [ "$KSU_VER_CODE" -lt 10670 ]; then
-  abort "Error: Please update your KernelSU Manager version"
+  abort "! ERROR: Please update your KernelSU version in your kernel!"
 fi
 
 if [ "$KSU" = true ] && [ "$KSU_VER_CODE" -lt 10683 ]; then
@@ -79,7 +79,7 @@ extract_subscribe_urls() {
     
     if [ -s "$BACKUP_FILE" ]; then
       eco "已备份订阅地址至：" "Backed up the subscription URLs to:"
-      ui_print " proxies/subscribe_urls_backup.txt"
+      ui_print "- /data/adb/box_bll/proxies/subscribe_urls_backup.txt"
     else
       eco "未找到 URLs，请检查配置文件格式" "No URLs found. Check config format."
     fi
@@ -189,7 +189,7 @@ install_surfingtile_module() {
         eco "SurfingTile 可能无法正常挂载为系统应用" "SurfingTile may not be mounted as system app"
       else
         eco "检测到当前元模块：" "Detect current meta-module: "
-        ui_print " ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
+        ui_print "- ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
       fi
       ecoe
   fi
@@ -295,15 +295,15 @@ unzip -qo "${ZIPFILE}" -x 'META-INF/*' -d "$MODPATH"
 
 if [ -z "$LOCALE" ]; then
   ecoe
-  ui_print " 请选择你所使用的语言：
- Please select your language:
- 
- 音量增加键：简体中文
- Volume Up: Simplified Chinese
- 音量减少键：English (默认)
- Volume Down: English (default)
-
- 等待按键中 (${press_a_key_timeout}秒)"
+  ui_print "- 请选择你所使用的语言：
+- Please select your language:
+- 
+- 音量增加键：简体中文
+- Volume Up: Simplified Chinese
+- 音量减少键：English (默认)
+- Volume Down: English (default)
+- 
+- 等待按键中 (${press_a_key_timeout}秒)"
   if choose_volume_key; then
     LOCALE="zh-CN"
   else
@@ -395,14 +395,14 @@ if [ -d /data/adb/box_bll ]; then
   ecoe
 else
   eco "安装中…" "Installing..."
-  ui_print " ↴"
+  ui_print "- ↴"
   mv "$MODPATH/box_bll" /data/adb/
   choose_to_install_surfingtile
   choose_to_install_web_apk
   ecol
   ecoe
   eco "模块安装完毕，工作目录为：" "Module installation completed. Working directory:"
-  ui_print " /data/adb/box_bll/"
+  ui_print "- /data/adb/box_bll/"
   ecoe
   eco "请在该工作目录下的 config.yaml" "Please add your subscription to"
   eco "添加你的订阅地址" "config.yaml under the working directory"
