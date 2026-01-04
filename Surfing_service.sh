@@ -22,7 +22,7 @@ sleep 1
 
 inotifyd ${SCRIPTS_DIR}/box.inotify ${modules_dir} > /dev/null 2>&1 &
 inotifyd ${SCRIPTS_DIR}/box.inotify "$HOSTS_PATH" > /dev/null 2>&1 &
-    
+
 mount -o bind "$HOSTS_FILE" "$SYSTEM_HOSTS"
 
 NET_DIR="/data/misc/net"
@@ -33,6 +33,10 @@ done
 inotifyd ${SCRIPTS_DIR}/net.inotify "$NET_DIR" > /dev/null 2>&1 &
 inotifyd ${SCRIPTS_DIR}/ctr.inotify /data/misc/net/rt_tables > /dev/null 2>&1 &
 
+if [ -d "/data/adb/modules/SurfingTile/" ]; then
+    inotifyd ${SCRIPTS_DIR}/box.inotify "/data/system" > /dev/null 2>&1 &
+fi
+
 delete_op_coloros16_fw_rules() {
     brand=$(getprop ro.product.brand | tr '[:upper:]' '[:lower:]')
     case "$brand" in
@@ -42,7 +46,7 @@ delete_op_coloros16_fw_rules() {
             return 0
             ;;
     esac
-    sleep 60
+    sleep 120
     CHAINS="fw_INPUT fw_OUTPUT"
     PROTOS="ipv4 ipv6"
     for proto in $PROTOS; do

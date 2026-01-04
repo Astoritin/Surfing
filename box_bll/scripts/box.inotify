@@ -60,3 +60,34 @@ handle_inotify_event() {
     fi
 }
 handle_inotify_event
+
+sync_tile_version_to_module() {
+    PKG="com.surfing.tile"
+    MODULE_PROP="/data/adb/modules/SurfingTile/module.prop"
+
+    dumpsys package "$PKG" >/dev/null 2>&1 || return 0
+    versionName=$(dumpsys package "$PKG" \
+        | grep -m1 "versionName=" \
+        | sed 's/.*versionName=//')
+        
+    versionCode=$(dumpsys package "$PKG" \
+        | grep -m1 "versionCode=" \
+        | sed 's/.*versionCode=\([0-9]*\).*/\1/')
+
+    [ -z "$versionName" ] && return 0
+
+    sed -i \
+        -e "s|^version=.*|version=[😋 User APK v${versionName}]|" \
+        -e "s|^versionCode=.*|versionCode=${versionCode}|" \
+        "$MODULE_PROP"
+}
+handle_packages_event() {
+    [ "$MONITOR_FILE" != "packages.xml" ] && return
+    case "$EVENT" in
+        m|c)
+            sleep 3
+            sync_tile_version_to_module
+            ;;
+    esac
+}
+handle_packages_event
